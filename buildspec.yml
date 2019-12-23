@@ -32,4 +32,5 @@ phases:
   build:
     commands:
       # Deploy pre-packaged service
-      - sls deploy
+#      - sls deploy
+      - serverless deploy
