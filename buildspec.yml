@@ -55,10 +55,10 @@ phases:
 #      - echo "" >> ~/.aws/config
 
       # Package service
-      - yarn run sls package --stage dev
+#      - yarn run sls package --stage dev
 
       # This will fail if packaging was incorrect
-      - ls -la ./.serverless
+#      - ls -la ./.serverless
 
       # Deploy pre-packaged service
       - yarn run sls deploy --stage dev --package ./.serverless
