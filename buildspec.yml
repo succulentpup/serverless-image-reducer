@@ -6,7 +6,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 10.x
+      nodejs: 10
     commands:
       - echo "install started"
       # This file configures apt to remove it's cache after installs - we want this cache, so we remove this config
