@@ -1,0 +1,104 @@
+# https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+# https://docs.aws.amazon.com/codebuild/latest/userguide/view-build-details.html#view-build-details-phases
+
+version: 0.2
+
+env:
+  variables:
+    CI: true
+    SLS_DEBUG: '*'
+    STAGE: dev
+  parameter-store:
+#    GITHUB_SSH_KEY: "/infra/pipelines/github/ssh-key"
+#    AWS_KEY: "/infra/pipelines/aws/dev/access-key-id"
+#    AWS_SECRET: "/infra/pipelines/aws/dev/secret-access-key"
+#    SONARQUBE_TOKEN: "/infra/pipelines/sonarqube/token"
+#    SONARQUBE_ENDPOINT: "/infra/pipelines/sonarqube/endpoint"
+
+phases:
+  install:
+    commands:
+      # This file configures apt to remove it's cache after installs - we want this cache, so we remove this config
+      - rm -f /etc/apt/apt.conf.d/docker-clean
+
+      # Update OS packages
+      - apt-get update -y
+      - apt-get install apt-transport-https
+
+      # Install Yarn
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+      - echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+      - apt-get install -y yarn
+
+      # Install SonarQube
+      # - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+      # - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+      # - export PATH=$PATH:./sonar-scanner-3.3.0.1492-linux/bin/
+  pre_build:
+    commands:
+      # Copy SSH key so we can pull private npm modules from GitHub
+      - echo $GITHUB_SSH_KEY > ~/.ssh/temp
+      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
+      - echo $(sed -e 's/\s\+/\n/g' ~/.ssh/temp) >> ~/.ssh/id_rsa
+      - echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
+      - echo "" >> ~/.ssh/id_rsa
+      - rm ~/.ssh/temp
+      - chmod 600 ~/.ssh/*
+
+      # Install dependencies
+      - rm -rf node_modules
+      - yarn install
+  build:
+    commands:
+      # Run typescript compiler and check for all errors across entire project
+      - yarn run typescriptSyntaxCheck
+
+      # Run linter (TSLint)
+      - yarn run lint
+
+      # Run unit tests (with coverage)
+      - yarn run test:unit --coverage --passWithNoTests
+
+      # Continuous inspection
+      # - sonar-scanner
+
+      # TODO: Collect & upload coverage data (s3 sync)
+
+      # Setup AWS Credentials
+      - mkdir -p ~/.aws
+      - echo "[$AWS_PROFILE]" > ~/.aws/credentials
+      - echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
+      - echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
+      - echo "" >> ~/.aws/credentials
+
+      # Setup AWS Profile
+      - echo "[profile $AWS_PROFILE]" > ~/.aws/config
+      - echo "region=$REGION" >> ~/.aws/config
+      - echo "" >> ~/.aws/config
+
+      # Package service
+      - yarn run sls package --stage dev
+
+      # This will fail if packaging was incorrect
+      - ls -la ./.serverless
+
+      # Deploy pre-packaged service
+      - yarn run sls deploy --stage dev --package ./.serverless
+
+      # Enable stack termination protection
+      - STACK_NAME=$(yarn run sls info --stage dev|grep stack:|awk '{print $2}')
+      - echo "Stack name is --> $STACK_NAME"
+      - aws --profile $AWS_PROFILE cloudformation update-termination-protection --enable-termination-protection --stack-name $STACK_NAME
+
+      # Run integration tests
+      - yarn run test:integration --passWithNoTests
+  post_build:
+    commands:
+      # Remove credentials
+      - rm -rf ~/.aws
+      - rm -f ~/.ssh/id_rsa
+#cache:
+#  paths:
+#    - node_modules/**/*
+#    - /root/.npm/**/*
+#    - /usr/lib/node_modules/**/*

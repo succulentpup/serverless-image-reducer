@@ -2,16 +2,27 @@ service: sls-learning-image-resizer-service
 
 plugins:
   - serverless-webpack
+  - serverless-plugin-split-stacks
 
 provider:
   name: aws
   runtime: nodejs10.x
-  profile: personal-serverless_marcia_vallalba
-  region: eu-west-1
+  profile: personal-sandbox
+  region: ap-south-1
+
+custom:
+  webpack:
+    packager: npm
+    includeModules:
+      forceExclude:
+        - aws-sdk
+  splitStacks:
+    perFunction: false
+    perType: true
 
 functions:
   hello:
-    handler: handler.hello
+    handler: src/handler.hello
     name: hello
     events:
       - s3:
@@ -22,7 +33,7 @@ functions:
             - suffix: .jpg
 
   resize:
-    handler: resizeHandler.resize
+    handler: src/resizeHandler.resize
     name: resize
     events:
       - s3:
