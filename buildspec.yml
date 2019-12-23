@@ -3,21 +3,10 @@
 
 version: 0.2
 
-env:
-  variables:
-    CI: true
-    SLS_DEBUG: '*'
-    STAGE: dev
-#  parameter-store:
-#    GITHUB_SSH_KEY: "/infra/pipelines/github/ssh-key"
-#    AWS_KEY: "/infra/pipelines/aws/dev/access-key-id"
-#    AWS_SECRET: "/infra/pipelines/aws/dev/secret-access-key"
-#    SONARQUBE_TOKEN: "/infra/pipelines/sonarqube/token"
-#    SONARQUBE_ENDPOINT: "/infra/pipelines/sonarqube/endpoint"
-
 phases:
   install:
     commands:
+      - echo "install started"
       # This file configures apt to remove it's cache after installs - we want this cache, so we remove this config
       - rm -f /etc/apt/apt.conf.d/docker-clean
 
@@ -29,21 +18,19 @@ phases:
       - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
       - echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
       - apt-get install -y yarn
+      - echo "install completed"
 
-      # Install SonarQube
-      # - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-      # - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
-      # - export PATH=$PATH:./sonar-scanner-3.3.0.1492-linux/bin/
   pre_build:
     commands:
       # Copy SSH key so we can pull private npm modules from GitHub
-      - echo $GITHUB_SSH_KEY > ~/.ssh/temp
-      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
-      - echo $(sed -e 's/\s\+/\n/g' ~/.ssh/temp) >> ~/.ssh/id_rsa
-      - echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
-      - echo "" >> ~/.ssh/id_rsa
-      - rm ~/.ssh/temp
-      - chmod 600 ~/.ssh/*
+#      - echo $GITHUB_SSH_KEY > ~/.ssh/temp
+#      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
+#      - echo $(sed -e 's/\s\+/\n/g' ~/.ssh/temp) >> ~/.ssh/id_rsa
+#      - echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
+#      - echo "" >> ~/.ssh/id_rsa
+#      - rm ~/.ssh/temp
+#      - chmod 600 ~/.ssh/*
+      - echo "prebuild started"
 
       # Install dependencies
       - rm -rf node_modules
