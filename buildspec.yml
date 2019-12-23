@@ -61,7 +61,7 @@ phases:
 #      - ls -la ./.serverless
 
       # Deploy pre-packaged service
-      - yarn run sls deploy --stage dev --package ./.serverless
+      - sls deploy --stage dev
 
       # Enable stack termination protection
 #      - STACK_NAME=$(yarn run sls info --stage dev|grep stack:|awk '{print $2}')
