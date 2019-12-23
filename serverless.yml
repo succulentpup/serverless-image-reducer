@@ -1,0 +1,33 @@
+service: sls-learning-image-resizer-service
+
+plugins:
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  profile: personal-serverless_marcia_vallalba
+  region: eu-west-1
+
+functions:
+  hello:
+    handler: handler.hello
+    name: hello
+    events:
+      - s3:
+          bucket: serverless-image-resizer-learning
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+            - suffix: .jpg
+
+  resize:
+    handler: resizeHandler.resize
+    name: resize
+    events:
+      - s3:
+          bucket: serverless-image-resizer-learning
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+            - suffix: .jpeg

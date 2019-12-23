@@ -1,0 +1,9 @@
+# Default ignored files
+/workspace.xml
+/misc.xml
+modules.xml
+serverless-image-reducer.iml
+vcs.xml
+
+# IDE
+.idea
