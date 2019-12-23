@@ -29,6 +29,9 @@ phases:
       # Install dependencies
       - rm -rf node_modules
       - yarn install
+      - yarn global add serverless --prefix /usr/local
+      - which serverless
+      - which sls
   build:
     commands:
       # Deploy pre-packaged service
