@@ -24,14 +24,6 @@ phases:
 
   pre_build:
     commands:
-      # Copy SSH key so we can pull private npm modules from GitHub
-#      - echo $GITHUB_SSH_KEY > ~/.ssh/temp
-#      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
-#      - echo $(sed -e 's/\s\+/\n/g' ~/.ssh/temp) >> ~/.ssh/id_rsa
-#      - echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
-#      - echo "" >> ~/.ssh/id_rsa
-#      - rm ~/.ssh/temp
-#      - chmod 600 ~/.ssh/*
       - echo "prebuild started"
 
       # Install dependencies
@@ -39,41 +31,5 @@ phases:
       - yarn install
   build:
     commands:
-      # Run typescript compiler and check for all errors across entire project
-#      - yarn run typescriptSyntaxCheck
-
-      # Setup AWS Credentials
-#      - mkdir -p ~/.aws
-#      - echo "[$AWS_PROFILE]" > ~/.aws/credentials
-#      - echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
-#      - echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
-#      - echo "" >> ~/.aws/credentials
-
-      # Setup AWS Profile
-#      - echo "[profile $AWS_PROFILE]" > ~/.aws/config
-#      - echo "region=$REGION" >> ~/.aws/config
-#      - echo "" >> ~/.aws/config
-
-      # Package service
-#      - yarn run sls package --stage dev
-
-      # This will fail if packaging was incorrect
-#      - ls -la ./.serverless
-
       # Deploy pre-packaged service
       - sls deploy
-
-      # Enable stack termination protection
-#      - STACK_NAME=$(yarn run sls info --stage dev|grep stack:|awk '{print $2}')
-#      - echo "Stack name is --> $STACK_NAME"
-#      - aws --profile $AWS_PROFILE cloudformation update-termination-protection --enable-termination-protection --stack-name $STACK_NAME
-
-#  post_build:
-#    commands:
-      # Remove credentials
-#      - rm -rf ~/.aws
-#cache:
-#  paths:
-#    - node_modules/**/*
-#    - /root/.npm/**/*
-#    - /usr/lib/node_modules/**/*

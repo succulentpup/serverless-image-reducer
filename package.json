@@ -1,5 +1,6 @@
 {
-  "dependencies": {
+  "devDependencies": {
+    "serverless": "~1.57.0",
     "serverless-plugin-split-stacks": "^1.9.2",
     "serverless-webpack": "^5.3.1",
     "terser-webpack-plugin": "^2.3.1",
