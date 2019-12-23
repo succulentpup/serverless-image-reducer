@@ -7,7 +7,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs10.x
-  profile: personal-sandbox
+#  profile: personal-sandbox
   region: ap-south-1
 
 custom:
