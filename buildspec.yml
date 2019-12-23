@@ -5,6 +5,8 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      node: 10.x
     commands:
       - echo "install started"
       # This file configures apt to remove it's cache after installs - we want this cache, so we remove this config
@@ -38,30 +40,19 @@ phases:
   build:
     commands:
       # Run typescript compiler and check for all errors across entire project
-      - yarn run typescriptSyntaxCheck
-
-      # Run linter (TSLint)
-      - yarn run lint
-
-      # Run unit tests (with coverage)
-      - yarn run test:unit --coverage --passWithNoTests
-
-      # Continuous inspection
-      # - sonar-scanner
-
-      # TODO: Collect & upload coverage data (s3 sync)
+#      - yarn run typescriptSyntaxCheck
 
       # Setup AWS Credentials
-      - mkdir -p ~/.aws
-      - echo "[$AWS_PROFILE]" > ~/.aws/credentials
-      - echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
-      - echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
-      - echo "" >> ~/.aws/credentials
+#      - mkdir -p ~/.aws
+#      - echo "[$AWS_PROFILE]" > ~/.aws/credentials
+#      - echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
+#      - echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
+#      - echo "" >> ~/.aws/credentials
 
       # Setup AWS Profile
-      - echo "[profile $AWS_PROFILE]" > ~/.aws/config
-      - echo "region=$REGION" >> ~/.aws/config
-      - echo "" >> ~/.aws/config
+#      - echo "[profile $AWS_PROFILE]" > ~/.aws/config
+#      - echo "region=$REGION" >> ~/.aws/config
+#      - echo "" >> ~/.aws/config
 
       # Package service
       - yarn run sls package --stage dev
@@ -73,17 +64,14 @@ phases:
       - yarn run sls deploy --stage dev --package ./.serverless
 
       # Enable stack termination protection
-      - STACK_NAME=$(yarn run sls info --stage dev|grep stack:|awk '{print $2}')
-      - echo "Stack name is --> $STACK_NAME"
-      - aws --profile $AWS_PROFILE cloudformation update-termination-protection --enable-termination-protection --stack-name $STACK_NAME
+#      - STACK_NAME=$(yarn run sls info --stage dev|grep stack:|awk '{print $2}')
+#      - echo "Stack name is --> $STACK_NAME"
+#      - aws --profile $AWS_PROFILE cloudformation update-termination-protection --enable-termination-protection --stack-name $STACK_NAME
 
-      # Run integration tests
-      - yarn run test:integration --passWithNoTests
-  post_build:
-    commands:
+#  post_build:
+#    commands:
       # Remove credentials
-      - rm -rf ~/.aws
-      - rm -f ~/.ssh/id_rsa
+#      - rm -rf ~/.aws
 #cache:
 #  paths:
 #    - node_modules/**/*
